@@ -1,0 +1,350 @@
+<Window x:Class="DarknessRise.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DarknessRise"
+        xmlns:vm="clr-namespace:DarknessRise.ViewModels"
+        mc:Ignorable="d"
+        Title="{Binding Title}" Height="900" Width="1600"
+        WindowStartupLocation="CenterScreen">
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部菜单栏 -->
+        <Menu Grid.Row="0" Background="#2C3E50" Foreground="White" Padding="5">
+            <MenuItem Header="文件(_F)" Foreground="White">
+                <MenuItem Header="导出JSON(_J)" Command="{Binding ExportJsonCommand}" Icon="📄"/>
+                <MenuItem Header="导出CSV(_C)" Command="{Binding ExportCsvCommand}" Icon="📊"/>
+                <Separator/>
+                <MenuItem Header="退出(_X)" Click="Exit_Click" Icon="🚪"/>
+            </MenuItem>
+            <MenuItem Header="数据(_D)" Foreground="White">
+                <MenuItem Header="刷新(_R)" Command="{Binding RefreshDataCommand}" Icon="🔄"/>
+                <MenuItem Header="清空数据(_E)" Command="{Binding ClearDataCommand}" Icon="🗑️"/>
+            </MenuItem>
+            <MenuItem Header="帮助(_H)" Foreground="White">
+                <MenuItem Header="使用说明(_U)" Click="Help_Click" Icon="❓"/>
+                <MenuItem Header="关于(_A)" Click="About_Click" Icon="ℹ️"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- 主内容区 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧控制面板 -->
+            <Border Grid.Column="0" Background="#F8F9FA" BorderBrush="#DEE2E6" BorderThickness="0,0,1,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="15">
+                        <!-- 标题 -->
+                        <TextBlock Text="🚀 Local Social Miner" 
+                                   FontWeight="Bold" FontSize="18" 
+                                   Foreground="#2C3E50" 
+                                   Margin="0,0,0,20"/>
+
+                        <!-- 抓取模式选择 -->
+                        <GroupBox Header="⚙️ 抓取模式" Margin="0,0,0,15" Padding="12" 
+                                  Background="White" BorderBrush="#DEE2E6">
+                            <StackPanel>
+                                <RadioButton Content="关键词搜索" 
+                                             IsChecked="{Binding IsKeywordMode}" 
+                                             Margin="0,0,0,10" Foreground="#495057"/>
+                                <RadioButton Content="指定网址" 
+                                             IsChecked="{Binding IsUrlMode}" 
+                                             Margin="0,0,0,10" Foreground="#495057"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- 搜索设置 -->
+                        <GroupBox Header="🔍 搜索设置" Margin="0,0,0,15" Padding="12" 
+                                  Background="White" BorderBrush="#DEE2E6">
+                            <StackPanel>
+                                <TextBlock Text="关键词:" Margin="0,0,0,5" Foreground="#495057"/>
+                                <TextBox Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}" 
+                                         Margin="0,0,0,10" Padding="8,6" 
+                                         BorderBrush="#CED4DA" BorderThickness="1"/>
+                                
+                                <TextBlock Text="网址:" Margin="0,0,0,5" Foreground="#495057"/>
+                                <TextBox Text="{Binding TargetUrl, UpdateSourceTrigger=PropertyChanged}" 
+                                         Margin="0,0,0,10" Padding="8,6" 
+                                         BorderBrush="#CED4DA" BorderThickness="1"
+                                         TextWrapping="Wrap" AcceptsReturn="True" Height="60"/>
+                                
+                                <TextBlock Text="最大推文数:" Margin="0,0,0,5" Foreground="#495057"/>
+                                <TextBox Text="{Binding MaxTweets, UpdateSourceTrigger=PropertyChanged}" 
+                                         Margin="0,0,0,15" Padding="8,6" 
+                                         BorderBrush="#CED4DA" BorderThickness="1"/>
+                                
+                                <TextBlock Text="浏览器选项:" Margin="0,0,0,5" Foreground="#495057"/>
+                                <CheckBox Content="无头模式(不显示浏览器)" 
+                                          IsChecked="{Binding IsHeadlessMode}" 
+                                          Margin="0,0,0,10" Foreground="#495057"/>
+                                
+                                <StackPanel Orientation="Horizontal">
+                                <Button Content="▶️ 开始抓取" Command="{Binding StartScrapingCommand}" 
+                                        Margin="0,0,5,0" Padding="15,8" 
+                                        Background="#3498DB" Foreground="White" 
+                                        BorderThickness="0" FontWeight="SemiBold"
+                                        Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Opacity" Value="0.5"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Content="⏹️ 停止抓取" Command="{Binding StopScrapingCommand}" 
+                                        Margin="5,0,0,0" Padding="15,8" 
+                                        Background="#E74C3C" Foreground="White" 
+                                        BorderThickness="0" FontWeight="SemiBold"
+                                        Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Opacity" Value="0.5"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- 进度显示 -->
+                        <GroupBox Header="📊 进度状态" Margin="0,0,0,15" Padding="12" 
+                                  Background="White" BorderBrush="#DEE2E6">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding ProgressText}" 
+                                               Grid.Column="0" Foreground="#495057"/>
+                                    <TextBlock Text="{Binding ProgressPercentage}" 
+                                               Grid.Column="1" Foreground="#3498DB" FontWeight="Bold"/>
+                                </Grid>
+                                <ProgressBar Value="{Binding CurrentProgress}" 
+                                             Maximum="100" Height="8" 
+                                             Foreground="#3498DB" Background="#ECF0F1"/>
+                                <TextBlock Text="{Binding StatusDetail}" 
+                                           TextWrapping="Wrap" Margin="0,10,0,0" 
+                                           Foreground="#6C757D" FontSize="11"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- 统计信息 -->
+                        <GroupBox Header="📈 统计信息" Margin="0,0,0,15" Padding="12" 
+                                  Background="White" BorderBrush="#DEE2E6">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Border Grid.Row="0" Grid.Column="0" Background="#E3F2FD" 
+                                        Margin="2" Padding="10" CornerRadius="4">
+                                    <StackPanel>
+                                        <TextBlock Text="已抓取" FontSize="11" Foreground="#1976D2"/>
+                                        <TextBlock Text="{Binding TweetCount}" FontSize="24" 
+                                                   FontWeight="Bold" Foreground="#1976D2"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="1" Background="#FFF3E0" 
+                                        Margin="2" Padding="10" CornerRadius="4">
+                                    <StackPanel>
+                                        <TextBlock Text="总推文" FontSize="11" Foreground="#F57C00"/>
+                                        <TextBlock Text="{Binding TotalTweets}" FontSize="24" 
+                                                   FontWeight="Bold" Foreground="#F57C00"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="0" Background="#E8F5E9" 
+                                        Margin="2" Padding="10" CornerRadius="4">
+                                    <StackPanel>
+                                        <TextBlock Text="任务数" FontSize="11" Foreground="#388E3C"/>
+                                        <TextBlock Text="{Binding TaskCount}" FontSize="24" 
+                                                   FontWeight="Bold" Foreground="#388E3C"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="1" Background="#FCE4EC" 
+                                        Margin="2" Padding="10" CornerRadius="4">
+                                    <StackPanel>
+                                        <TextBlock Text="总点赞" FontSize="11" Foreground="#C2185B"/>
+                                        <TextBlock Text="{Binding TotalLikes}" FontSize="24" 
+                                                   FontWeight="Bold" Foreground="#C2185B"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </GroupBox>
+
+                        <!-- 数据操作 -->
+                        <GroupBox Header="📋 数据操作" Margin="0,0,0,15" Padding="12" 
+                                  Background="White" BorderBrush="#DEE2E6">
+                            <StackPanel>
+                                <Button Content="🔄 刷新数据" Command="{Binding RefreshDataCommand}" 
+                                        Margin="0,0,0,5" Padding="10,6" 
+                                        Background="#2ECC71" Foreground="White" 
+                                        BorderThickness="0" Cursor="Hand"/>
+                                <Button Content="📄 导出JSON" Command="{Binding ExportJsonCommand}" 
+                                        Margin="0,0,0,5" Padding="10,6" 
+                                        Background="#9B59B6" Foreground="White" 
+                                        BorderThickness="0" Cursor="Hand"/>
+                                <Button Content="📊 导出CSV" Command="{Binding ExportCsvCommand}" 
+                                        Margin="0,0,0,5" Padding="10,6" 
+                                        Background="#3498DB" Foreground="White" 
+                                        BorderThickness="0" Cursor="Hand"/>
+                                <Button Content="🗑️ 清空数据" Command="{Binding ClearDataCommand}" 
+                                        Padding="10,6" 
+                                        Background="#E74C3C" Foreground="White" 
+                                        BorderThickness="0" Cursor="Hand"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- 日志 -->
+                        <GroupBox Header="📝 实时日志" Margin="0,0,0,10" Padding="12" 
+                                  Background="White" BorderBrush="#DEE2E6">
+                            <ListBox ItemsSource="{Binding LogMessages}" 
+                                     Height="180" Background="#FAFAFA" 
+                                     BorderBrush="#E0E0E0" 
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" TextWrapping="Wrap" 
+                                                   FontFamily="Consolas" FontSize="11" 
+                                                   Foreground="#333"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- 右侧数据视图 -->
+            <Border Grid.Column="1" Padding="15" Background="#FFFFFF">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- 标题栏 -->
+                    <Border Grid.Row="0" Padding="0,0,0,15" BorderBrush="#DEE2E6" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="📱 推文数据" 
+                                       FontWeight="Bold" FontSize="20" 
+                                       Foreground="#2C3E50" Grid.Column="0"/>
+                            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                                <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
+                                         Width="250" Padding="8,5" Margin="0,0,10,0" 
+                                         BorderBrush="#CED4DA" BorderThickness="1"
+                                         VerticalContentAlignment="Center">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="Text" Value="">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="TextBox">
+                                                                <Border Background="{TemplateBinding Background}" 
+                                                                        BorderBrush="{TemplateBinding BorderBrush}" 
+                                                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                                                    <Grid>
+                                                                        <TextBlock Text="🔍 搜索推文..." 
+                                                                                   Foreground="#999" Margin="8,5"
+                                                                                   Visibility="Collapsed"/>
+                                                                        <ScrollViewer x:Name="PART_ContentHost"/>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                                <Button Content="筛选" Command="{Binding FilterCommand}" 
+                                        Padding="15,5" Background="#7F8C8D" 
+                                        Foreground="White" BorderThickness="0" Cursor="Hand"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- 推文列表 -->
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredTweets}" 
+                              AutoGenerateColumns="False" IsReadOnly="True" 
+                              Background="#FAFAFA" BorderBrush="#DEE2E6" BorderThickness="1"
+                              GridLinesVisibility="Horizontal" HeadersVisibility="Column"
+                              CanUserAddRows="False" CanUserDeleteRows="False"
+                              SelectionMode="Single" Margin="0,15,0,0">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#2C3E50"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Padding" Value="10,8"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E3F2FD"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#BBDEFB"/>
+                                        <Setter Property="Foreground" Value="#000"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                                <Setter Property="Padding" Value="5"/>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="👤 作者" Binding="{Binding AuthorName}" Width="140"/>
+                            <DataGridTextColumn Header="@账号" Binding="{Binding AuthorHandle}" Width="120"/>
+                            <DataGridTextColumn Header="📝 内容" Binding="{Binding Content}" Width="*"/>
+                            <DataGridTextColumn Header="🕐 时间" Binding="{Binding Timestamp}" Width="160"/>
+                            <DataGridTextColumn Header="❤️ 点赞" Binding="{Binding Likes}" Width="70"/>
+                            <DataGridTextColumn Header="🔄 转发" Binding="{Binding Retweets}" Width="70"/>
+                            <DataGridTextColumn Header="💬 回复" Binding="{Binding Replies}" Width="70"/>
+                            <DataGridTextColumn Header="🔖 收藏" Binding="{Binding Bookmarks}" Width="70"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 底部状态栏 -->
+        <StatusBar Grid.Row="2" Background="#2C3E50" Foreground="White" Padding="10,5">
+            <StatusBarItem>
+                <TextBlock Text="{Binding StatusMessage}"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
